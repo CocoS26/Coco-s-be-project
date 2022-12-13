@@ -55,7 +55,6 @@ This endpoint should allow clients to view all the reviews currently available.
     -   designer
     -   owner
     -   review_img_url
-    -   review_body
     -   category
     -   created_at
     -   votes
@@ -69,8 +68,87 @@ default sort order: **descending**
 > **Hint:** Some properties on the response might need to be coerced into numbers to check whether they are sorted correctly. Check out [the documentation for jest-sorted](https://www.npmjs.com/package/jest-sorted#user-content-tobesorted).
 
 
-### 3. Get /api/reviews
+### 3. Get /api/reviews/:review_id
 
+This endpoint should allow clients to view a single review matched by review_id.
+
+- each review should have the following keys:
+    -   review_id
+    -   title
+    -   designer
+    -   owner
+    -   review_img_url
+    -   review_body
+    -   category
+    -   created_at
+    -   votes
+
+E.g.
+
+```js
+// GET /api/review/2
+{
+  "review":{
+    review_id: 2,
+    title: 'Jenga',
+    designer: 'Leslie Scott',
+    owner: 'philippaclaire9',
+    review_img_url:'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+    review_body: 'Fiddly fun for all the family',
+    category: 'dexterity',
+    created_at: '2021-01-18T10:01:41.251Z',
+    votes: 5
+  }
+}
+```
+
+### 4. Get /api/reviews/:review_id/comments
+
+This endpoint should allow clients to view an array of comments for the given review_id of which 
+
+- Each comment should have the following keys:
+  - comment_id
+  - votes
+  - created_at
+  - author
+  - body
+  - review_id
+
+
+
+E.g.
+
+```js
+// GET /api/review/2/comments
+{
+  "comments": [
+     {
+    comment_id: 1
+    body: 'I loved this game too!',
+    votes: 16,
+    author: 'bainesface',
+    review_id: 2,
+    created_at: new Date(1511354613389),
+  },
+  {
+    comment_id: 4
+    body: 'EPIC board game!',
+    votes: 16,
+    author: 'bainesface',
+    review_id: 2,
+    created_at: new Date(1511354163389),
+  },
+  {
+    comment_id: 5
+    body: 'Now this is a story all about how, board games turned my life upside down',
+    votes: 13,
+    author: 'mallionaire',
+    review_id: 2,
+    created_at: new Date(1610965445410),
+  },
+  ]
+}
+```
 
 
 
