@@ -76,7 +76,7 @@ describe('GET / api/reviews/:review_id', () => {
       .get(`/api/reviews/${REVIEW_ID}`)
       .expect(200)
       .then(({ body }) => {
-        const review  = body.review ;
+        const review  = body.review;
         expect(review).toMatchObject({
           review_id: 2,
           title: 'Jenga',
@@ -103,7 +103,60 @@ describe('GET / api/reviews/:review_id', () => {
       .get(`/api/reviews/a`)
       .expect(400)
       .then(({body: {msg} }) => {
-        expect(msg).toBe('Bad Request')
+      expect(msg).toBe('Bad Request')
+      });
+  });
+});
+
+
+describe('GET / api/reviews/:review_id/comments', () => {
+  test("1. 200: responds with an array of comments for a specific review_id ", () => {
+    const REVIEW_ID = 2 
+    return request(app)
+      .get(`/api/reviews/${REVIEW_ID}/comments`)
+      .expect(200)
+      .then((result) => {
+        const comments  = result.body;
+        expect(comments).toHaveLength(3);
+        expect(comments).toBeSortedBy('created_at',{descending:true})
+        comments.forEach((comment)=>{
+           expect(comment).toMatchObject({
+          review_id: 2,
+          comment_id: expect.any(Number),
+          votes: expect.any(Number),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+        })
+        });
+      });
+  });
+  test("2. 200: responds with an empty array for an existent review_id that has no reviews", () => {
+    const REVIEW_ID = 1 
+    return request(app)
+      .get(`/api/reviews/${REVIEW_ID}/comments`)
+      .expect(200)
+      .then((result) => {
+        const comments  = result.body;
+        expect(comments).toHaveLength(0);
+      });
+  });
+
+  test("3. 404: responds with not found for non-existent review_id ", () => {
+    return request(app)
+      .get(`/api/reviews/14/comments`)
+      .expect(404)
+      .then(({body: {msg} }) => {
+        expect(msg).toBe('Not Found');
+      });
+  });
+
+  test("4. 400: invalid review_id ", () => {
+    return request(app)
+      .get(`/api/reviews/a/comments`)
+      .expect(400)
+      .then(({body: {msg} }) => {
+      expect(msg).toBe('Bad Request')
       });
   });
 });

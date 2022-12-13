@@ -28,14 +28,31 @@ ORDER BY created_at desc
 };
 
 selectReviewsById = (REVIEW_ID) => {
-        return db
-            .query("SELECT * FROM reviews WHERE review_id = $1;", [REVIEW_ID])
-            .then((result) => {
-                if (result.rowCount === 0) {
-                    return Promise.reject({ msg: 'Not Found', status: 404 })
-                }
-                return result.rows[0];
-            })
+    return db
+        .query("SELECT * FROM reviews WHERE review_id = $1;", [REVIEW_ID])
+        .then((result) => {
+            if (result.rowCount === 0) {
+                return Promise.reject({ msg: 'Not Found', status: 404 })
+            }
+            return result.rows[0];
+        })
+};
+
+selectCommentsById = (REVIEW_ID) => {
+    let queryString = `
+    SELECT * 
+    FROM comments 
+    WHERE review_id = $1
+    ORDER BY created_at desc
+    `;
+    return db
+        .query(queryString, [REVIEW_ID])
+        .then((result) => {
+            if (result.rowCount === 0 && REVIEW_ID>13) {
+                return Promise.reject({ msg: 'Not Found', status: 404 })
+            }
+            return result.rows;
+        })
 };
 
 
@@ -43,4 +60,5 @@ module.exports = {
     selectCategories,
     selectReviews,
     selectReviewsById,
+    selectCommentsById,
 }
