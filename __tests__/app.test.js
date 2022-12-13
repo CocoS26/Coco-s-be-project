@@ -29,8 +29,6 @@ describe('GET / api/categories', () => {
       .expect(200)
       .then(({ body }) => {
         const { categories } = body;
-
-        expect(categories).toBeInstanceOf(Array);
         expect(categories).toHaveLength(4);
         categories.forEach((category) => {
           expect(category).toMatchObject(({
@@ -44,14 +42,14 @@ describe('GET / api/categories', () => {
  
 });
 describe('GET / api/reviews', () => {
-  test("1. 200: resolve with reviews", () => {
+  test("1. 200: resolves with reviews sorted by date in descending order", () => {
     return request(app)
       .get('/api/reviews')
       .expect(200)
       .then(({ body }) => {
         const { reviews } = body;
-        expect(reviews).toBeInstanceOf(Array);
         expect(reviews).toHaveLength(13);
+        expect(reviews).toBeSortedBy('created_at',{descending:true})
         reviews.forEach((review) => {
           expect(review).toMatchObject(({
           review_id: expect.any(Number),
@@ -59,7 +57,6 @@ describe('GET / api/reviews', () => {
           category: expect.any(String),
           designer: expect.any(String),
           owner: expect.any(String),
-          review_body: expect.any(String),
           review_img_url: expect.any(String),
           created_at: expect.any(String),
           votes: expect.any(Number),
@@ -69,13 +66,4 @@ describe('GET / api/reviews', () => {
         });
       });
   });
-  test('2. 200: accepts sort_by query: should return created_at descending by default',()=>{
-    return request(app)
-    .get('/api/reviews?sort_by = created_at', order = 'desc')
-    .expect(200)
-    .then(({body:{reviews}})=>{
-        expect(reviews).toBeSortedBy('created_at',{descending:true})
-    });
-});
-
 });
