@@ -1,16 +1,82 @@
-# Northcoders House of Games API
+g# Northcoders House of Games API
 
-## Background
+## Background (will edit later)
 
 We will be building an API for the purpose of accessing application data programmatically. The intention here is to mimic the building of a real world backend service (such as reddit) which should provide this information to the front end architecture.
 
 Your database will be PSQL, and you will interact with it using [node-postgres](https://node-postgres.com/).
 
-## Kanban
+### Seeding
 
-### Link to your Trello Board here: https://trello.com/b/gBtX4GN3/be-nc-games
+### Setting up database connection to test and development databases
 
-To keep track of the tasks involved in this project we're going to use a kanban board. Ensure that you work on one _ticket_ at time. You can click on the ticket to find out more information about what is required for the feature. A ticket is not considered complete unless both the happy path and errors response are handled. You can make use of the checklist on each ticket to keep track of the errors you want to handle. You can also make use of [error-handling.md](error-handling.md) to consider the error codes we may wish to respond with.
+You will need to create two .env files for your project: .env.test and .env.development. Into each, add PGDATABASE=<database_name_here> (see /db/setup.sql for the database names), with the correct database name for that environment (use the `example.env` as a template). Double check that these .env files are .gitignored.
+
+_dotenv is a [module that loads environment variables from a .env file into the process.env global object]
+
+You have been provided with a `db` folder with some data, a setup.sql file and a seeds folder.please take some time to familiarise yourself with the project structure.
+
+## Drop the existing tables
+
+The `seed` script provided for you in the `package.json` will run the `seed` function with the dev data. Use the `seed` script to check your `seed` function is working as intended. 
+
+You will need to run the `setup.sql` file to create the databases first.
+
+
+
+### Build the api 
+
+Time to go into business and get the api setup. Your task is to make a flexible endpoint that clients can use to query all the data they will need about the state of their games.
+
+It's essential that the endpoint is tested, including a test for each query! Avoid testing for too many things in one assertion.
+It might be worth using a very small dataset (you can use the data in your `./db/data/test-data.js` file!).
+
+
+### 1. GET /api/categories
+
+This endpoint should allow clients to view all the categories currently available.
+
+E.g.
+```js
+{
+  "categories": [
+    // ... category objects
+  ]
+}
+```
+
+### 2. Get /api/reviews
+
+This endpoint should allow clients to view all the reviews currently available.
+
+- each review should have the following keys:
+    -   review_id
+    -   title
+    -   designer
+    -   owner
+    -   review_img_url
+    -   review_body
+    -   category
+    -   created_at
+    -   votes
+    -   **comment_count** which is the total count of all the comments with this review_id
+
+default sort criteria: **date**
+default sort order: **descending**
+
+- `/api/reviews`, first result should be the latest review (default)
+
+> **Hint:** Some properties on the response might need to be coerced into numbers to check whether they are sorted correctly. Check out [the documentation for jest-sorted](https://www.npmjs.com/package/jest-sorted#user-content-tobesorted).
+
+
+### 3. Get /api/reviews
+
+
+
+
+
+
+
 
 **Please ensure you work through the tickets in numerical order.**
 
