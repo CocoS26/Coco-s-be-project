@@ -160,3 +160,51 @@ describe('GET / api/reviews/:review_id/comments', () => {
       });
   });
 });
+
+describe('POST / api/reviews/:review_id/comments', () => {
+  test('1. status:201, responds with comments newly added to the database', () => {
+    const newComment = {
+      username: "dav3rid",
+      body: "This is a great game!"
+    };
+    const REVIEW_ID = 2
+    return request(app)
+    .post(`/api/reviews/${REVIEW_ID}/comments`)
+      .send(newComment)
+      .expect(201)
+      .then(( result ) => {
+        expect(result.body).toMatchObject({
+          author: "dav3rid",
+          body: "This is a great game!",
+          review_id: 2,
+          comment_id: 7,
+          votes:0,
+          created_at: "2017-11-22T12:43:33.389Z",
+        })
+        });
+      });
+  });
+  test('2. status:400, when a key is null', () => {
+    const newComment = {
+      username: "",
+      body: ""
+    }
+    const REVIEW_ID = 2 
+    return request(app)
+      .post(`/api/reviews/${REVIEW_ID}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        const msg = response.body.msg
+        expect(msg).toBe('Bad Request')
+    });
+  });
+    test("3. 404: responds with not found for non-existent review_id ", () => {
+      return request(app)
+        .get(`/api/reviews/14/comments`)
+        .expect(404)
+        .then(({body: {msg} }) => {
+          expect(msg).toBe('Not Found');
+        });
+    });
+ 
