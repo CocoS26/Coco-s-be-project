@@ -116,7 +116,7 @@ This endpoint should allow clients to view an array of comments for the given re
 
 ### 5. POST /api/reviews/:review_id/comments
 
-Add a new comment to the database and responds with an object containing the new comment object. 
+This endpoint should add a new comment to the database and responds with an object containing the new comment object. 
 
 E.g.
 
@@ -136,9 +136,17 @@ E.g.
 }
 ```
 
+### 6. PATCH /api/reviews/:review_id
 
+This endpoint should update the `votes` field of the specified review. It should respond with the updated review object. Extra/invalid keys in the request object should be ignored, but an empty object in the request should get a 400 response.
 
+```js
+// PATCH /api/reviews/2 - example request body:
 
+{
+  "votes": 6 // <--- was previously votes 5 for this restaurant
+};
+```
 
 
 

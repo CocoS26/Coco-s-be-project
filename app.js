@@ -12,7 +12,8 @@ const {
     getReviews,
     getReviewsById,
     getCommentsById,
-    postCommentsById
+    postCommentsById,
+    patchReviews
 } = require('./controllers/controller');
 
 const app = express();
@@ -28,6 +29,8 @@ app.get('/api/reviews/:review_id', getReviewsById);
 app.get('/api/reviews/:review_id/comments',getCommentsById);
 
 app.post('/api/reviews/:review_id/comments', postCommentsById);
+
+//app.patch('/api/reviews/:review_id', patchReviews);
 
 app.all('*', handle404paths);
 
