@@ -160,3 +160,153 @@ describe('GET / api/reviews/:review_id/comments', () => {
       });
   });
 });
+
+describe('POST / api/reviews/:review_id/comments', () => {
+  test('1. status:201, responds with comments newly added to the database', () => {
+    const newComment = {
+      username: "dav3rid",
+      body: "This is a great game!"
+    };
+    const REVIEW_ID = 2
+    return request(app)
+    .post(`/api/reviews/${REVIEW_ID}/comments`)
+      .send(newComment)
+      .expect(201)
+      .then(( result ) => {
+        expect(result.body).toMatchObject({
+          author: "dav3rid",
+          body: "This is a great game!",
+          review_id: 2,
+          comment_id: 7,
+          votes:0,
+          created_at: "2017-11-22T12:43:33.389Z",
+        })
+        });
+      });
+  });
+  test('2. status:400, when a key is null', () => {
+    const newComment = {
+      username: "",
+      body: ""
+    }
+    const REVIEW_ID = 2 
+    return request(app)
+      .post(`/api/reviews/${REVIEW_ID}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        const msg = response.body.msg
+        expect(msg).toBe('Bad Request')
+    });
+  });
+    test("3. 404: responds with not found for non-existent review_id ", () => {
+      return request(app)
+        .get(`/api/reviews/14/comments`)
+        .expect(404)
+        .then(({body: {msg} }) => {
+          expect(msg).toBe('Not Found');
+        });
+    });
+    test("4. 201: extra keys in the request object should be ignored", () => {
+      const REVIEW_ID = 2
+      const newComment = {
+        username: "dav3rid",
+        body: "This is a great game!",
+        age: 25
+      };
+      return request(app)
+        .post(`/api/reviews/${REVIEW_ID}/comments`)
+        .expect(201)
+        .send(newComment)
+        .then(( result ) => {
+          expect(result.body).toMatchObject({
+            author: "dav3rid",
+            body: "This is a great game!",
+            review_id: 2,
+            comment_id: 7,
+            votes:0,
+            created_at: "2017-11-22T12:43:33.389Z",
+          })
+          });
+    });
+    test("5. status:400: responds with 400 error msg when the review_id is non-existent", () => {
+      const REVIEW_ID = 2
+      const newComment = {
+        username: "dav3rid",
+        body: "This is a great game!",
+        age: 25
+      };
+      return request(app)
+        .post(`/api/reviews/${REVIEW_ID}/comments`)
+        .expect(201)
+        .send(newComment)
+        .then(( result ) => {
+          expect(result.body).toMatchObject({
+            author: "dav3rid",
+            body: "This is a great game!",
+            review_id: 2,
+            comment_id: 7,
+            votes:0,
+            created_at: "2017-11-22T12:43:33.389Z",
+          })
+          });
+    });
+    test("6. 400: invalid review_id ", () => {
+      const REVIEW_ID = "a"
+      const newComment = {
+        username: "dav3rid",
+        body: "This is a great game!",
+        age: 25
+      };
+      return request(app)
+        .post(`/api/reviews/${REVIEW_ID}/comments`)
+        .expect(400)
+        .send(newComment)
+        .then(({body: {msg} }) => {
+        expect(msg).toBe('Bad Request')
+        });
+    });
+    test("7. 404: responds with not found for non-existent username ", () => {
+      const REVIEW_ID = 2
+      const newComment = {
+        username: "CocoS26",
+        body: "This is a great game!",
+        age: 22
+      };
+      return request(app)
+        .post(`/api/reviews/${REVIEW_ID}/comments`)
+        .expect(404)
+        .send(newComment)
+        .then(({body: {msg} }) => {
+          
+          expect(msg).toBe('Not Found');
+        });
+    });
+
+
+ 
+    describe('PATCH  /api/reviews/:review_id', () => {
+      test('1. status:200, updates a review for a specific review_id', () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: 1
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+          .send(reviewUpdates)
+          .expect(200)
+          .then(( result ) => {
+            expect(result.body).toMatchObject({
+              votes:6,
+              title: 'Jenga',
+              designer: 'Leslie Scott',
+              owner: 'philippaclaire9',
+              review_img_url:
+                'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+              review_body: 'Fiddly fun for all the family',
+              category: 'dexterity',
+              created_at: new Date(1610964101251),
+            })
+            });
+          });
+      });

@@ -114,7 +114,9 @@ This endpoint should allow clients to view an array of comments for the given re
   - body
   - review_id
 
+### 5. POST /api/reviews/:review_id/comments
 
+This endpoint should add a new comment to the database and responds with an object containing the new comment object. 
 
 E.g.
 
@@ -123,36 +125,28 @@ E.g.
 {
   "comments": [
      {
-    comment_id: 1
-    body: 'I loved this game too!',
-    votes: 16,
-    author: 'bainesface',
+    comment_id: 7
+    body: 'This is a great game!',
+    votes: 0,
+    author: 'dav3rid',
     review_id: 2,
     created_at: new Date(1511354613389),
-  },
-  {
-    comment_id: 4
-    body: 'EPIC board game!',
-    votes: 16,
-    author: 'bainesface',
-    review_id: 2,
-    created_at: new Date(1511354163389),
-  },
-  {
-    comment_id: 5
-    body: 'Now this is a story all about how, board games turned my life upside down',
-    votes: 13,
-    author: 'mallionaire',
-    review_id: 2,
-    created_at: new Date(1610965445410),
-  },
+  }
   ]
 }
 ```
 
+### 6. PATCH /api/reviews/:review_id
 
+This endpoint should update the `votes` field of the specified review. It should respond with the updated review object. Extra/invalid keys in the request object should be ignored, but an empty object in the request should get a 400 response.
 
+```js
+// PATCH /api/reviews/2 - example request body:
 
+{
+  "votes": 6 // <--- was previously votes 5 for this restaurant
+};
+```
 
 
 

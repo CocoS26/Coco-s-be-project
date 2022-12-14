@@ -1,5 +1,6 @@
 const db = require('../db/connection.js');
 
+
 selectCategories = () => {
     return db
         .query("SELECT * FROM categories;")
@@ -48,7 +49,7 @@ selectCommentsById = (REVIEW_ID) => {
     return db
         .query(queryString, [REVIEW_ID])
         .then((result) => {
-            if (result.rowCount === 0 && REVIEW_ID>13) {
+            if (result.rowCount === 0 && REVIEW_ID > 13) {
                 return Promise.reject({ msg: 'Not Found', status: 404 })
             }
             return result.rows;
@@ -56,9 +57,46 @@ selectCommentsById = (REVIEW_ID) => {
 };
 
 
-module.exports = {
-    selectCategories,
-    selectReviews,
-    selectReviewsById,
-    selectCommentsById,
+insertsCommentsById = (REVIEW_ID, { username, body }) => {
+    if (username === '' || body === '') {
+        return Promise.reject({ status: 400, msg: 'Bad Request' })
+    }
+
+
+    const created_at = new Date(1511354613389)
+    const vote = 0
+    return db
+        .query(`
+            INSERT INTO comments (body, author, review_id, votes, created_at)
+            VALUES ($1,$2,$3,$4,$5)
+            RETURNING *;
+            `,
+            [body, username, REVIEW_ID, vote, created_at])
+        .then((result) => {
+            return result.rows[0]
+        })
 }
+
+
+
+    updateReviews = (REVIEW_ID) => {
+        return db
+        .query("UPDATE reviews SET votes = $1 WHERE review_id =$2 RETURNING * ;", [])
+        .then((results) => {
+            return results.rows;
+        })
+};
+
+
+
+
+
+
+    module.exports = {
+        selectCategories,
+        selectReviews,
+        selectReviewsById,
+        selectCommentsById,
+        insertsCommentsById,
+        updateReviews
+    }
