@@ -229,7 +229,7 @@ describe('POST / api/reviews/:review_id/comments', () => {
           })
           });
     });
-    test("5. status:400: responds with 400 error msg when the review_id is non-existent", () => {
+    test("5.extra keys in the request object should be ignored", () => {
       const REVIEW_ID = 2
       const newComment = {
         username: "dav3rid",
@@ -283,10 +283,9 @@ describe('POST / api/reviews/:review_id/comments', () => {
         });
     });
 
-
  
     describe('PATCH  /api/reviews/:review_id', () => {
-      test('1. status:200, updates a review for a specific review_id', () => {
+      test.only('1. status:200, updates a review by incresing the votes property for a specific review_id', () => {
         const REVIEW_ID = 2
         const reviewUpdates = {
           inc_votes: 1
@@ -305,8 +304,97 @@ describe('POST / api/reviews/:review_id/comments', () => {
                 'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
               review_body: 'Fiddly fun for all the family',
               category: 'dexterity',
-              created_at: new Date(1610964101251),
+              created_at: '2021-01-18T10:01:41.251Z',
             })
             });
           });
       });
+      test.only('2. status:400, when a key is null', () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: ''
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+        .send(reviewUpdates)
+          .expect(400)
+          .then((response) => {
+            const msg = response.body.msg
+            expect(msg).toBe('Bad Request')
+        });
+      });
+      test.only('3. status:400, when a key is invalid', () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: "great"
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+        .send(reviewUpdates)
+          .expect(400)
+          .then((response) => {
+            const msg = response.body.msg
+            expect(msg).toBe('Bad Request')
+        });
+      });
+      test.only("4. 404: responds with not found for non-existent review_id ", () => {
+        const REVIEW_ID = 14
+        const reviewUpdates = {
+          inc_votes: 1
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+        .send(reviewUpdates)
+          .expect(404)
+          .then(({body: {msg} }) => {
+            expect(msg).toBe('Not Found');
+          });
+      });
+      test.only("5. 200: extra keys in the request object should be ignored", () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: 1,
+          username: 'CocoS26'
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+          .send(reviewUpdates)
+          .expect(200)
+          .then(( result ) => {
+            expect(result.body).toMatchObject({
+              votes:6,
+              title: 'Jenga',
+              designer: 'Leslie Scott',
+              owner: 'philippaclaire9',
+              review_img_url:
+                'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+              review_body: 'Fiddly fun for all the family',
+              category: 'dexterity',
+              created_at: '2021-01-18T10:01:41.251Z',
+            })
+            });
+      })
+      test.only('6. status:200, updates a review by decreasing the votes property for a specific review_id', () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: -6
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+          .send(reviewUpdates)
+          .expect(200)
+          .then(( result ) => {
+            expect(result.body).toMatchObject({
+              votes: -1,
+              title: 'Jenga',
+              designer: 'Leslie Scott',
+              owner: 'philippaclaire9',
+              review_img_url:
+                'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+              review_body: 'Fiddly fun for all the family',
+              category: 'dexterity',
+              created_at: '2021-01-18T10:01:41.251Z',
+            })
+            });
+          });
+      

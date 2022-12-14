@@ -55,8 +55,11 @@ const postCommentsById = (req, res, next) =>{
     })
 }
 
-const patchReview  = (req, res, next) =>{
-    updateReviews(req.params.review_id,req.body)
+const patchReviews  = (req, res, next) =>{
+    checkIfReviewIdExists(req.params.review_id)
+    .then(()=>{
+    return updateReviews(req.params.review_id,req.body)
+    })
     .then((review)=>{
         res.status(200).send(review)
     })
@@ -72,5 +75,5 @@ module.exports = {
     getReviewsById,
     getCommentsById,
     postCommentsById,
-    patchReview,
+    patchReviews,
 }
