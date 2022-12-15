@@ -10,20 +10,23 @@ selectCategories = () => {
 };
 
 selectReviews = (category, sort_by= 'created_at', order='desc') => {
+
     const validSortedByQueries = ['review_id', 'title', 'category', 'designer', 'owner', 'review_img_url', 'created_at' ] 
     const validCategories = [ 'euro game','social deduction','dexterity',"children's games"]
     const validOrderQueries = ['asc', 'desc']
     
     if (!validSortedByQueries.includes(sort_by)) {
         return Promise.reject({
-            status: 404,
-            msg: `No sort_by found`,
+            status: 400,
+            msg: 'Bad Request',
           });
     }
 
     if(!validOrderQueries.includes(order)){
-        return Promise.reject({ status: 404, msg: 'No sort_by found' })
+        return Promise.reject({ status: 400, msg: 'Bad Request' })
     }
+
+    
 
 let queryString = `
 SELECT owner,title,reviews.review_id,category,review_img_url,reviews.created_at,reviews.votes,designer,
@@ -36,6 +39,8 @@ let queryValues = []
 if (validCategories.includes(category)){
     queryString += ` WHERE category = $1`
     queryValues.push(category)
+}else if (category &&!validCategories.includes(category) ){
+    return Promise.reject({ status: 404, msg: 'Not Found' })
 }
 queryString += `
 GROUP BY reviews.review_id

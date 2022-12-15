@@ -11,6 +11,7 @@ afterAll(() => {
 
 beforeEach(() => seed(testData));
 
+
 describe('GET non-existent route',()=>{
   test('404: non-existent route', ()=>{
       return request(app)
@@ -75,12 +76,12 @@ test("2. 200: resolves with reviews sorted by date in descending order by defaul
     });
 });
 
-test("3. 404: send a non-existent column to sort by", () => {
+test("3. 400: send a non-existent column to sort by", () => {
   return request(app)
     .get('/api/reviews?sort_by=vote; DROPTABLES')
-    .expect(404)
+    .expect(400)
     .then(({body:{msg}})=>{
-        expect(msg).toBe('No sort_by found');
+        expect(msg).toBe('Bad Request');
     });
 });
 test("4. 200: accept category query", () => {
@@ -91,7 +92,49 @@ test("4. 200: accept category query", () => {
       expect(reviews).toHaveLength(1);
         })
 });
-
+test("5. 200 - accepts a valid sort by query", () => {
+  return request(app)
+    .get('/api/reviews?sort_by=title')
+    .expect(200)
+    .then(({ body }) => {
+      const { reviews } = body;
+      expect(reviews).toBeSortedBy('title',{descending:true})
+    });
+})
+test("6. 200 - accepts a valid order query", () => {
+  return request(app)
+    .get('/api/reviews?order=asc')
+    .expect(200)
+    .then(({ body }) => {
+      const { reviews } = body;
+      expect(reviews).toBeSortedBy('created_at',{asc:false})
+    });
+})
+test("7. 400 - invalid order query", () => {
+  return request(app)
+    .get('/api/reviews?order=ascending')
+    .expect(400)
+    .then(({body: {msg} }) => {
+    expect(msg).toBe('Bad Request')
+    });
+})
+test("8. 404 - non existent category", () => {
+  return request(app)
+    .get('/api/reviews?category=CocoS26')
+    .expect(404)
+    .then(({body: {msg} }) => {
+    expect(msg).toBe('Not Found')
+    });
+})
+test("9. 200 -  valid category query but no reviews attached to it, ", () => {
+  return request(app)
+    .get("/api/reviews?category=children's games")
+    .expect(200)
+      .then(({ body }) => {
+        const review  = body.reviews;
+        expect(review).toMatchObject([])
+    });
+})
 });
 
 
@@ -421,6 +464,20 @@ describe('POST / api/reviews/:review_id/comments', () => {
               category: 'dexterity',
               created_at: '2021-01-18T10:01:41.251Z',
             })
+            });
+          });
+          test('7. status:400, when review_id is invalid', () => {
+            const REVIEW_ID = "banana"
+            const reviewUpdates = {
+              inc_votes: 2
+            }
+            return request(app)
+            .patch(`/api/reviews/${REVIEW_ID}`)
+            .send(reviewUpdates)
+              .expect(400)
+              .then((response) => {
+                const msg = response.body.msg
+                expect(msg).toBe('Bad Request')
             });
           });
         });
