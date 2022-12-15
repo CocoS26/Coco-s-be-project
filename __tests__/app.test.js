@@ -11,6 +11,7 @@ afterAll(() => {
 
 beforeEach(() => seed(testData));
 
+
 describe('GET non-existent route',()=>{
   test('404: non-existent route', ()=>{
       return request(app)
@@ -48,7 +49,6 @@ describe('GET / api/reviews', () => {
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toHaveLength(13);
-        expect(reviews).toBeSortedBy('created_at',{descending:true})
         reviews.forEach((review) => {
           expect(review).toMatchObject(({
           review_id: expect.any(Number),
@@ -65,6 +65,76 @@ describe('GET / api/reviews', () => {
         });
       });
   });
+
+test("2. 200: resolves with reviews sorted by date in descending order by default", () => {
+  return request(app)
+    .get('/api/reviews')
+    .expect(200)
+    .then(({ body }) => {
+      const { reviews } = body;
+      expect(reviews).toBeSortedBy('created_at',{descending:true})
+    });
+});
+
+test("3. 400: send a non-existent column to sort by", () => {
+  return request(app)
+    .get('/api/reviews?sort_by=vote; DROPTABLES')
+    .expect(400)
+    .then(({body:{msg}})=>{
+        expect(msg).toBe('Bad Request');
+    });
+});
+test("4. 200: accept category query", () => {
+  return request(app)
+    .get('/api/reviews?category=euro game')
+    .expect(200)
+      .then(({body:{reviews}})=>{
+      expect(reviews).toHaveLength(1);
+        })
+});
+test("5. 200 - accepts a valid sort by query", () => {
+  return request(app)
+    .get('/api/reviews?sort_by=title')
+    .expect(200)
+    .then(({ body }) => {
+      const { reviews } = body;
+      expect(reviews).toBeSortedBy('title',{descending:true})
+    });
+})
+test("6. 200 - accepts a valid order query", () => {
+  return request(app)
+    .get('/api/reviews?order=asc')
+    .expect(200)
+    .then(({ body }) => {
+      const { reviews } = body;
+      expect(reviews).toBeSortedBy('created_at',{asc:false})
+    });
+})
+test("7. 400 - invalid order query", () => {
+  return request(app)
+    .get('/api/reviews?order=ascending')
+    .expect(400)
+    .then(({body: {msg} }) => {
+    expect(msg).toBe('Bad Request')
+    });
+})
+test("8. 404 - non existent category", () => {
+  return request(app)
+    .get('/api/reviews?category=CocoS26')
+    .expect(404)
+    .then(({body: {msg} }) => {
+    expect(msg).toBe('Not Found')
+    });
+})
+test("9. 200 -  valid category query but no reviews attached to it, ", () => {
+  return request(app)
+    .get("/api/reviews?category=children's games")
+    .expect(200)
+      .then(({ body }) => {
+        const review  = body.reviews;
+        expect(review).toMatchObject([])
+    });
+})
 });
 
 
@@ -183,7 +253,7 @@ describe('POST / api/reviews/:review_id/comments', () => {
         })
         });
       });
-  });
+
   test('2. status:400, when a key is null', () => {
     const newComment = {
       username: "",
@@ -229,7 +299,7 @@ describe('POST / api/reviews/:review_id/comments', () => {
           })
           });
     });
-    test("5. status:400: responds with 400 error msg when the review_id is non-existent", () => {
+    test("5.extra keys in the request object should be ignored", () => {
       const REVIEW_ID = 2
       const newComment = {
         username: "dav3rid",
@@ -282,11 +352,9 @@ describe('POST / api/reviews/:review_id/comments', () => {
           expect(msg).toBe('Not Found');
         });
     });
-
-
- 
+  });
     describe('PATCH  /api/reviews/:review_id', () => {
-      test('1. status:200, updates a review for a specific review_id', () => {
+      test('1. status:200, updates a review by incresing the votes property for a specific review_id', () => {
         const REVIEW_ID = 2
         const reviewUpdates = {
           inc_votes: 1
@@ -305,8 +373,133 @@ describe('POST / api/reviews/:review_id/comments', () => {
                 'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
               review_body: 'Fiddly fun for all the family',
               category: 'dexterity',
-              created_at: new Date(1610964101251),
+              created_at: '2021-01-18T10:01:41.251Z',
             })
             });
           });
+     
+      test('2. status:400, when a key is null', () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: ''
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+        .send(reviewUpdates)
+          .expect(400)
+          .then((response) => {
+            const msg = response.body.msg
+            expect(msg).toBe('Bad Request')
+        });
       });
+      test('3. status:400, when a key is invalid', () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: "great"
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+        .send(reviewUpdates)
+          .expect(400)
+          .then((response) => {
+            const msg = response.body.msg
+            expect(msg).toBe('Bad Request')
+        });
+      });
+      test("4. 404: responds with not found for non-existent review_id ", () => {
+        const REVIEW_ID = 14
+        const reviewUpdates = {
+          inc_votes: 1
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+        .send(reviewUpdates)
+          .expect(404)
+          .then(({body: {msg} }) => {
+            expect(msg).toBe('Not Found');
+          });
+      });
+      test("5. 200: extra keys in the request object should be ignored", () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: 1,
+          username: 'CocoS26'
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+          .send(reviewUpdates)
+          .expect(200)
+          .then(( result ) => {
+            expect(result.body).toMatchObject({
+              votes:6,
+              title: 'Jenga',
+              designer: 'Leslie Scott',
+              owner: 'philippaclaire9',
+              review_img_url:
+                'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+              review_body: 'Fiddly fun for all the family',
+              category: 'dexterity',
+              created_at: '2021-01-18T10:01:41.251Z',
+            })
+            });
+      })
+      test('6. status:200, updates a review by decreasing the votes property for a specific review_id', () => {
+        const REVIEW_ID = 2
+        const reviewUpdates = {
+          inc_votes: -6
+        }
+        return request(app)
+        .patch(`/api/reviews/${REVIEW_ID}`)
+          .send(reviewUpdates)
+          .expect(200)
+          .then(( result ) => {
+            expect(result.body).toMatchObject({
+              votes: -1,
+              title: 'Jenga',
+              designer: 'Leslie Scott',
+              owner: 'philippaclaire9',
+              review_img_url:
+                'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+              review_body: 'Fiddly fun for all the family',
+              category: 'dexterity',
+              created_at: '2021-01-18T10:01:41.251Z',
+            })
+            });
+          });
+          test('7. status:400, when review_id is invalid', () => {
+            const REVIEW_ID = "banana"
+            const reviewUpdates = {
+              inc_votes: 2
+            }
+            return request(app)
+            .patch(`/api/reviews/${REVIEW_ID}`)
+            .send(reviewUpdates)
+              .expect(400)
+              .then((response) => {
+                const msg = response.body.msg
+                expect(msg).toBe('Bad Request')
+            });
+          });
+        });
+
+describe('GET / api/users', () => {
+  test("respond with a json object containing a key of `users` with a value of an array of all the users objects", () => {
+    return request(app)
+      .get('/api/users')
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toMatchObject(({
+          username: expect.any(String),
+          name: expect.any(String),
+          avatar_url: expect.any(String)
+          })
+          );
+        });
+      });
+  });
+});
+
+

@@ -1,4 +1,4 @@
-const{selectCategories, selectReviews, selectReviewsById,selectCommentsById, insertsCommentsById,updateReviews} = require ('../models/model.js');
+const{selectCategories, selectReviews, selectReviewsById,selectCommentsById, insertsCommentsById,updateReviews,selectUsers} = require ('../models/model.js');
 const { checkIfUserExists, checkIfReviewIdExists } = require('../models/models.users.js');
 
 const getCategories = (req, res, next) =>{
@@ -12,7 +12,8 @@ const getCategories = (req, res, next) =>{
 }
 
 const getReviews = (req, res, next) =>{
-    selectReviews()
+    const {category, sort_by, order} = req.query
+    selectReviews(category,sort_by, order)
     .then((reviews)=>{
         res.status(200).send({reviews})
     })
@@ -55,10 +56,22 @@ const postCommentsById = (req, res, next) =>{
     })
 }
 
-const patchReview  = (req, res, next) =>{
-    updateReviews(req.params.review_id,req.body)
+const patchReviews  = (req, res, next) =>{
+    checkIfReviewIdExists(req.params.review_id)
+    .then(()=>{
+    return updateReviews(req.params.review_id,req.body)
+    })
     .then((review)=>{
         res.status(200).send(review)
+    })
+    .catch((err)=>{
+        next((err))
+    })
+}
+const getUsers = (req, res, next) =>{
+    selectUsers()
+    .then((users)=>{
+        res.status(200).send({users})
     })
     .catch((err)=>{
         next((err))
@@ -72,5 +85,7 @@ module.exports = {
     getReviewsById,
     getCommentsById,
     postCommentsById,
-    patchReview,
+    patchReviews,
+    getUsers,
+   
 }
