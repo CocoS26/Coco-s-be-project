@@ -9,23 +9,46 @@ selectCategories = () => {
         })
 };
 
-selectReviews = () => {
+selectReviews = (category, sort_by= 'created_at', order='desc') => {
+    const validSortedByQueries = ['review_id', 'title', 'category', 'designer', 'owner', 'review_img_url', 'created_at' ] 
+    const validCategories = [ 'euro game','social deduction','dexterity',"children's games"]
+    const validOrderQueries = ['asc', 'desc']
+    
+    if (!validSortedByQueries.includes(sort_by)) {
+        return Promise.reject({
+            status: 404,
+            msg: `No sort_by found`,
+          });
+    }
 
-    let queryString = `
-    SELECT owner,title,reviews.review_id,category,review_img_url,reviews.created_at,reviews.votes,designer,
-    COUNT(comment_id) AS comment_count
-    FROM reviews 
-    LEFT JOIN comments ON
-    reviews.review_id = comments.review_id
-    GROUP BY reviews.review_id
-    ORDER BY created_at desc
+    if(!validOrderQueries.includes(order)){
+        return Promise.reject({ status: 404, msg: 'No sort_by found' })
+    }
+
+let queryString = `
+SELECT owner,title,reviews.review_id,category,review_img_url,reviews.created_at,reviews.votes,designer,
+COUNT(comment_id) AS comment_count
+FROM reviews 
+LEFT JOIN comments ON
+reviews.review_id = comments.review_id
 `;
+let queryValues = []
+if (validCategories.includes(category)){
+    queryString += ` WHERE category = $1`
+    queryValues.push(category)
+}
+queryString += `
+GROUP BY reviews.review_id
+ORDER BY ${sort_by} ${order}
+;`;
 
-    return db
-        .query(queryString)
-        .then((results) => {
-            return results.rows;
-        })
+
+return db
+.query(queryString, queryValues)
+.then((result)=>{
+    return result.rows
+})
+   
 };
 
 selectReviewsById = (REVIEW_ID) => {
@@ -46,6 +69,8 @@ selectCommentsById = (REVIEW_ID) => {
     WHERE review_id = $1
     ORDER BY created_at desc
     `;
+
+    
     return db
         .query(queryString, [REVIEW_ID])
         .then((result) => {
@@ -90,11 +115,19 @@ insertsCommentsById = (REVIEW_ID, { username, body }) => {
         WHERE review_id =$1 
         RETURNING * ;`, [REVIEW_ID,inc_votes])
         .then((results) => {
-            //console.log(results.rows)
             return results.rows[0];
         })
+
+       
 };
 
+ selectUsers = () => {
+    return db
+        .query("SELECT * FROM users;")
+        .then((results) => {
+            return results.rows;
+        })
+};
 
 
 
@@ -106,5 +139,7 @@ insertsCommentsById = (REVIEW_ID, { username, body }) => {
         selectReviewsById,
         selectCommentsById,
         insertsCommentsById,
-        updateReviews
+        updateReviews,
+        selectUsers,
+       
     }

@@ -48,7 +48,6 @@ describe('GET / api/reviews', () => {
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toHaveLength(13);
-        expect(reviews).toBeSortedBy('created_at',{descending:true})
         reviews.forEach((review) => {
           expect(review).toMatchObject(({
           review_id: expect.any(Number),
@@ -65,6 +64,34 @@ describe('GET / api/reviews', () => {
         });
       });
   });
+
+test("2. 200: resolves with reviews sorted by date in descending order by default", () => {
+  return request(app)
+    .get('/api/reviews')
+    .expect(200)
+    .then(({ body }) => {
+      const { reviews } = body;
+      expect(reviews).toBeSortedBy('created_at',{descending:true})
+    });
+});
+
+test("3. 404: send a non-existent column to sort by", () => {
+  return request(app)
+    .get('/api/reviews?sort_by=vote; DROPTABLES')
+    .expect(404)
+    .then(({body:{msg}})=>{
+        expect(msg).toBe('No sort_by found');
+    });
+});
+test("4. 200: accept category query", () => {
+  return request(app)
+    .get('/api/reviews?category=euro game')
+    .expect(200)
+      .then(({body:{reviews}})=>{
+      expect(reviews).toHaveLength(1);
+        })
+});
+
 });
 
 
@@ -183,7 +210,7 @@ describe('POST / api/reviews/:review_id/comments', () => {
         })
         });
       });
-  });
+
   test('2. status:400, when a key is null', () => {
     const newComment = {
       username: "",
@@ -282,10 +309,9 @@ describe('POST / api/reviews/:review_id/comments', () => {
           expect(msg).toBe('Not Found');
         });
     });
-
- 
+  });
     describe('PATCH  /api/reviews/:review_id', () => {
-      test.only('1. status:200, updates a review by incresing the votes property for a specific review_id', () => {
+      test('1. status:200, updates a review by incresing the votes property for a specific review_id', () => {
         const REVIEW_ID = 2
         const reviewUpdates = {
           inc_votes: 1
@@ -308,8 +334,8 @@ describe('POST / api/reviews/:review_id/comments', () => {
             })
             });
           });
-      });
-      test.only('2. status:400, when a key is null', () => {
+     
+      test('2. status:400, when a key is null', () => {
         const REVIEW_ID = 2
         const reviewUpdates = {
           inc_votes: ''
@@ -323,7 +349,7 @@ describe('POST / api/reviews/:review_id/comments', () => {
             expect(msg).toBe('Bad Request')
         });
       });
-      test.only('3. status:400, when a key is invalid', () => {
+      test('3. status:400, when a key is invalid', () => {
         const REVIEW_ID = 2
         const reviewUpdates = {
           inc_votes: "great"
@@ -337,7 +363,7 @@ describe('POST / api/reviews/:review_id/comments', () => {
             expect(msg).toBe('Bad Request')
         });
       });
-      test.only("4. 404: responds with not found for non-existent review_id ", () => {
+      test("4. 404: responds with not found for non-existent review_id ", () => {
         const REVIEW_ID = 14
         const reviewUpdates = {
           inc_votes: 1
@@ -350,7 +376,7 @@ describe('POST / api/reviews/:review_id/comments', () => {
             expect(msg).toBe('Not Found');
           });
       });
-      test.only("5. 200: extra keys in the request object should be ignored", () => {
+      test("5. 200: extra keys in the request object should be ignored", () => {
         const REVIEW_ID = 2
         const reviewUpdates = {
           inc_votes: 1,
@@ -374,7 +400,7 @@ describe('POST / api/reviews/:review_id/comments', () => {
             })
             });
       })
-      test.only('6. status:200, updates a review by decreasing the votes property for a specific review_id', () => {
+      test('6. status:200, updates a review by decreasing the votes property for a specific review_id', () => {
         const REVIEW_ID = 2
         const reviewUpdates = {
           inc_votes: -6
@@ -397,4 +423,26 @@ describe('POST / api/reviews/:review_id/comments', () => {
             })
             });
           });
-      
+        });
+
+describe('GET / api/users', () => {
+  test("respond with a json object containing a key of `users` with a value of an array of all the users objects", () => {
+    return request(app)
+      .get('/api/users')
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toMatchObject(({
+          username: expect.any(String),
+          name: expect.any(String),
+          avatar_url: expect.any(String)
+          })
+          );
+        });
+      });
+  });
+});
+
+
