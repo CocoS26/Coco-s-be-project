@@ -58,7 +58,15 @@ return db
 
 selectReviewsById = (REVIEW_ID) => {
     return db
-        .query("SELECT * FROM reviews WHERE review_id = $1;", [REVIEW_ID])
+        .query(`
+        SELECT reviews.*,
+        COUNT (comments.review_id) AS comment_count
+        FROM reviews 
+        LEFT OUTER JOIN comments ON reviews.review_id = comments.review_id
+        WHERE reviews.review_id = $1
+        GROUP BY reviews.review_id
+        
+        `, [REVIEW_ID])
         .then((result) => {
             if (result.rowCount === 0) {
                 return Promise.reject({ msg: 'Not Found', status: 404 })
@@ -66,6 +74,11 @@ selectReviewsById = (REVIEW_ID) => {
             return result.rows[0];
         })
 };
+
+
+
+
+
 
 selectCommentsById = (REVIEW_ID) => {
     let queryString = `
