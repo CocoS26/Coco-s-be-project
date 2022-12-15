@@ -15,6 +15,7 @@ const {
     postCommentsById,
     patchReviews,
     getUsers,
+    deleteCommentsById,
 } = require('./controllers/controller');
 
 const app = express();
@@ -32,6 +33,8 @@ app.get('/api/reviews/:review_id/comments',getCommentsById);
 app.post('/api/reviews/:review_id/comments', postCommentsById);
 
 app.patch('/api/reviews/:review_id', patchReviews);
+
+app.delete('/api/comments/:comment_id',deleteCommentsById)
 
 app.get('/api/users', getUsers);
 

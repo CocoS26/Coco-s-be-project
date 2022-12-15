@@ -147,6 +147,18 @@ insertsCommentsById = (REVIEW_ID, { username, body }) => {
         })
 };
 
+removeCommentsById = (COMMENT_ID) => {
+    return db
+    .query (`
+    DELETE FROM comments 
+    WHERE comment_id = $1;`, [COMMENT_ID])
+    .then((result) => {
+        if (result.rowCount === 0) {
+            return Promise.reject({ msg: 'Not Found', status: 404 })
+        }
+        return result.rows[0];
+    })
+};
 
 
 
@@ -159,5 +171,5 @@ insertsCommentsById = (REVIEW_ID, { username, body }) => {
         insertsCommentsById,
         updateReviews,
         selectUsers,
-       
+        removeCommentsById,
     }

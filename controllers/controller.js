@@ -1,4 +1,4 @@
-const{selectCategories, selectReviews, selectReviewsById,selectCommentsById, insertsCommentsById,updateReviews,selectUsers} = require ('../models/model.js');
+const{selectCategories, selectReviews, selectReviewsById,selectCommentsById, insertsCommentsById,updateReviews,selectUsers, removeCommentsById} = require ('../models/model.js');
 const { checkIfUserExists, checkIfReviewIdExists } = require('../models/models.users.js');
 
 const getCategories = (req, res, next) =>{
@@ -78,6 +78,17 @@ const getUsers = (req, res, next) =>{
     })
 }
 
+const deleteCommentsById = (req, res, next) => {
+    removeCommentsById(req.params.comment_id)
+    .then(()=> {
+      res.sendStatus(204)
+    })
+    .catch((err)=>{
+        next((err))
+    })
+  };
+  
+
 
 module.exports = {
     getCategories,
@@ -87,5 +98,5 @@ module.exports = {
     postCommentsById,
     patchReviews,
     getUsers,
-   
+    deleteCommentsById,
 }
