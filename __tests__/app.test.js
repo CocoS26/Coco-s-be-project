@@ -176,6 +176,18 @@ describe('GET / api/reviews/:review_id', () => {
       expect(msg).toBe('Bad Request')
       });
   });
+  test("4. 200: includes comment_count ", () => {
+    const REVIEW_ID = 2 
+    return request(app)
+    .get(`/api/reviews/${REVIEW_ID}`)
+    .expect(200)
+      .then(({ body }) => {
+        const review  = body.review;
+        expect(review).toMatchObject({
+         comment_count: '3'
+        });
+      });
+  });
 });
 
 
@@ -353,6 +365,9 @@ describe('POST / api/reviews/:review_id/comments', () => {
         });
     });
   });
+
+
+
     describe('PATCH  /api/reviews/:review_id', () => {
       test('1. status:200, updates a review by incresing the votes property for a specific review_id', () => {
         const REVIEW_ID = 2
