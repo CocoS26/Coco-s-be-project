@@ -1,5 +1,5 @@
-const{selectCategories, selectReviews, selectReviewsById,selectCommentsById, insertsCommentsById,updateReviews} = require ('../models/model.js');
-const { checkIfUserExists, checkIfReviewIdExists } = require('../models/models.users.js');
+const{selectCategories, selectReviews, selectReviewsById,updateReviews,selectUsers} = require ('../models/model.js');
+const { checkIfReviewIdExists } = require('../models/models.users.js');
 
 const getCategories = (req, res, next) =>{
     selectCategories()
@@ -12,7 +12,8 @@ const getCategories = (req, res, next) =>{
 }
 
 const getReviews = (req, res, next) =>{
-    selectReviews()
+    const {category, sort_by, order} = req.query
+    selectReviews(category,sort_by, order)
     .then((reviews)=>{
         res.status(200).send({reviews})
     })
@@ -30,10 +31,11 @@ const getReviewsById = (req, res, next) =>{
     })
 }
 
-const getCommentsById = (req, res, next) =>{
+
+const patchReviews  = (req, res, next) =>{
     checkIfReviewIdExists(req.params.review_id)
     .then(()=>{
-        return selectCommentsById(req.params.review_id)
+    return updateReviews(req.params.review_id,req.body)
     })
     .then((review)=>{
         res.status(200).send(review)
@@ -42,35 +44,23 @@ const getCommentsById = (req, res, next) =>{
         next((err))
     })
 }
-const postCommentsById = (req, res, next) =>{
-    checkIfUserExists(req.body.username)
-    .then(()=>{
-        return insertsCommentsById(req.params.review_id,req.body)
-    })
-    .then((review)=>{
-        res.status(201).send(review)
+const getUsers = (req, res, next) =>{
+    selectUsers()
+    .then((users)=>{
+        res.status(200).send({users})
     })
     .catch((err)=>{
         next((err))
     })
 }
 
-const patchReview  = (req, res, next) =>{
-    updateReviews(req.params.review_id,req.body)
-    .then((review)=>{
-        res.status(200).send(review)
-    })
-    .catch((err)=>{
-        next((err))
-    })
-}
+
 
 
 module.exports = {
     getCategories,
     getReviews,
     getReviewsById,
-    getCommentsById,
-    postCommentsById,
-    patchReview,
+    patchReviews,
+    getUsers,
 }

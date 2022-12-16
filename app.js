@@ -11,10 +11,16 @@ const {
     getCategories, 
     getReviews,
     getReviewsById,
+    patchReviews,
+    getUsers,
+    
+} = require('./controllers/controller');
+
+const {
     getCommentsById,
     postCommentsById,
-    patchReviews
-} = require('./controllers/controller');
+    deleteCommentById,
+} = require('./controllers/controllers.comments');
 
 const app = express();
 
@@ -30,7 +36,11 @@ app.get('/api/reviews/:review_id/comments',getCommentsById);
 
 app.post('/api/reviews/:review_id/comments', postCommentsById);
 
-//app.patch('/api/reviews/:review_id', patchReviews);
+app.patch('/api/reviews/:review_id', patchReviews);
+
+app.delete('/api/comments/:comment_id',deleteCommentById)
+
+app.get('/api/users', getUsers);
 
 app.all('*', handle404paths);
 

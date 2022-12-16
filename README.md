@@ -125,12 +125,12 @@ E.g.
 {
   "comments": [
      {
-    comment_id: 7
+    comment_id: 7,
     body: 'This is a great game!',
     votes: 0,
     author: 'dav3rid',
     review_id: 2,
-    created_at: new Date(1511354613389),
+    created_at: new Date(1511354613389)
   }
   ]
 }
