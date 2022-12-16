@@ -28,6 +28,10 @@ const app = express();
 
 app.use(express.json()); 
 
+app.get('/', (req, res) => {
+    res.send('Hello my friends.')
+})
+
 app.get('/api', getEndpoints);
 
 app.get('/api/categories', getCategories);
