@@ -23,6 +23,17 @@ describe('GET non-existent route',()=>{
   })
 })
 
+describe('GET /api', () => {
+  test.only('200: responds with object of different endpoints', () => {
+      return request(app)
+      .get('/api')
+      .expect(200)
+      .then(({body : {endpoints}}) => {
+          expect(endpoints).toBeInstanceOf(Object)
+      })
+  })
+});
+
 describe('GET / api/categories', () => {
   test("respond with a json object containing a key of `categories` with a value of an array of all the category objects", () => {
     return request(app)
