@@ -7,6 +7,6 @@ exports.getEndpoints = (req, res, next) => {
     res.statusCode = 200
     fs.readFile(`${__dirname}/endpoints.json`, "utf-8")
     .then((endpoints) => {
-        res.send({endpoints: {endpoints}});
+        res.send(endpoints);
     })
 }

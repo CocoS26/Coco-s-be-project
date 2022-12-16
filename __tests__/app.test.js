@@ -24,12 +24,12 @@ describe('GET non-existent route',()=>{
 })
 
 describe('GET /api', () => {
-  test.only('200: responds with object of different endpoints', () => {
+  test('200: responds with object of different endpoints', () => {
       return request(app)
       .get('/api')
       .expect(200)
-      .then(({body : {endpoints}}) => {
-          expect(endpoints).toBeInstanceOf(Object)
+      .then(({body}) => {
+          expect(body).toBeInstanceOf(Object)
       })
   })
 });
