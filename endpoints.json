@@ -30,5 +30,86 @@
         }
       ]
     }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "mallionaire",
+          "name": "haz",
+          "avatar_url":
+           " https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
+  },
+  "GET /api/reviews/:review": {
+    "description": "serves a single review object matched by review_id",
+    "keys": ["review_id", "title","designer","review_img_url", "review_body","category","created_at", "votes","comment_count"],
+    "exampleResponse": {
+      "review":{
+        "review_id": 2,
+        "title": "Jenga",
+        "designer": "Leslie Scott",
+        "owner": "philippaclaire9",
+        "review_img_url":"https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+        "review_body": "Fiddly fun for all the family",
+        "category": "dexterity",
+        "created_at": "2021-01-18T10:01:41.251Z",
+        "votes": 5,
+        "comment_count":3
+      }
+    }
+  },
+  "GET /api/reviews/:reveiw/comments": {
+    "description": "serves an array of comments for a specific review_id ",
+    "exampleResponse": {
+      "comments":[{
+        "comment_id": 7,
+        "body":"This is a great game!",
+        "votes": 0,
+        "author": "dav3rid",
+        "review_id": 2,
+        "created_at": 1511354613389
+      }
+    ]
+    }
+  },
+  "POST /api/reviews/:review_id/comments": {
+    "description": "serves a newly created comment",
+    "queries": [],
+    "exampleResponse": {
+       "comments": {
+     "comment_id": 7,
+     "body": "This is a great game!",
+     "votes": 0,
+     "author": "dav3rid",
+     "review_id": 2,
+     "created_at": 1511354613389
+    }
+   }
+  },
+  "PATCH  /api/reviews/:review_id": {
+    "description": "serves an updated review object",
+    "queries": [],
+    "exampleResponse": {
+    "comments": 
+      {
+      "votes":6,
+      "title": "Jenga",
+      "designer": "Leslie Scott",
+      "owner": "philippaclaire9",
+      "review_img_url":
+        "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+      "review_body": "Fiddly fun for all the family",
+      "category": "dexterity",
+      "created_at": "2021-01-18T10:01:41.251Z"
+   }
   }
+},
+"DELETE  /api/comments/:comment_id": {
+  "description": "this endpoint should delete the specified comment from the database"
+}
 }
