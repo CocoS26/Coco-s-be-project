@@ -518,3 +518,34 @@ describe('GET / api/users', () => {
 });
 
 
+describe('DELETE /api/comments/:comment_id', () => {
+  test("1. responds with an empty response body", () => {
+    const COMMENT_ID = 2
+    return request(app)
+    .delete(`/api/comments/${COMMENT_ID}`)
+    .expect(204);
+  });
+  test("2. returns 404 not found when when comment_id does not exist",() => {
+
+    return request(app)
+    .delete(`/api/comments/779`)
+    .expect(404)
+    .then(({body: {msg} }) => {
+      expect(msg).toBe('Not Found');
+    });
+     
+
+});
+test("3. returns 400 Bad Request when comment_id is invalid",() => {
+  return request(app)
+  .delete(`/api/comments/banana`)
+  .expect(400)
+  .then((response) => {
+    const msg = response.body.msg
+    expect(msg).toBe('Bad Request')
+});
+   
+
+});
+})
+
