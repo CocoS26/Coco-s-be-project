@@ -3,8 +3,6 @@ const express = require('express');
 
 const cors = require('cors');
 
-app.use(cors());
-
 const {
     handle404paths,
     handleCustomErrors,
@@ -30,6 +28,8 @@ const {
 const {getEndpoints} = require('./endpoints.js')
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json()); 
 
