@@ -12,7 +12,7 @@ selectCommentsById = (REVIEW_ID) => {
     return db
         .query(queryString, [REVIEW_ID])
         .then((result) => {
-            if (result.rowCount === 0 && REVIEW_ID > 13) {
+            if (result.rowCount === 0) {
                 return Promise.reject({ msg: 'Not Found', status: 404 })
             }
             return result.rows;
