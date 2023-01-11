@@ -11,7 +11,7 @@ selectCategories = () => {
 
 selectReviews = (category, sort_by= 'created_at', order='desc') => {
 
-    const validSortedByQueries = ['review_id', 'title', 'category', 'designer', 'owner', 'review_img_url', 'created_at' ] 
+    const validSortedByQueries = ['review_id', 'title', 'category', 'designer', 'owner', 'review_img_url', 'created_at' , "votes" , "comment_count"] 
     const validCategories = [ 'euro game','social deduction','dexterity',"children's games","strategy", "hidden-roles", "dexterity", "push-your-luck", "roll-and-write", "deck-building", "engine-building"]
     const validOrderQueries = ['asc', 'desc']
     
